@@ -12,8 +12,24 @@ import numpy as np
 import os
 import os.path
 import math
+import sys
 import scipy.stats as stats
 from multiprocessing import Pool,Value    # multi-core support
+
+
+
+
+inputList = sys.argv[1:]
+
+plotSet = set()
+for i in range(0, len(inputList), 2):
+    plotSet.add((inputList[i], inputList[i+1]))
+
+
+
+print("Set of pairs of words to plot")
+print(plotSet)
+
 
 
 #%matplotlib inline
@@ -21,16 +37,14 @@ from multiprocessing import Pool,Value    # multi-core support
 
 time_start = time.time()
 print("Loading german model")
-#german = KeyedVectors.load("/home/behnkeg/urteile/w2v/wiki-neu-3-run02.vector",mmap='r')
 german = KeyedVectors.load("deutsch.vector",mmap='r')
 print("Loading law model")
-#model = KeyedVectors.load("/home/behnkeg/urteile/w2v/urteile-neu-2-run02.vector",mmap='r')
 model = KeyedVectors.load("urteile.vector",mmap='r')
 print('Models loaded! Time elapsed: {} seconds'.format(time.time()-time_start))
 
 
 time_start = time.time()
-file = codecs.open("wiki-wort-counter-simplified-3-run02.sorted", 'r', 'utf-8')
+file = codecs.open("deutsch.counter", 'r', 'utf-8')
 text = file.read()
 file.close()
 
@@ -40,7 +54,7 @@ for textline in text.split("\n"): #[:2000]:
     count,word = textline.strip().split(" ")
     wikicount[word] = int(count)
 
-file = codecs.open("wort-counter-simplified-2-run02.sorted", 'r', 'utf-8')
+file = codecs.open("urteile.counter", 'r', 'utf-8')
 text = file.read()
 file.close()
 print('Count file loaded. Time elapsed: {} seconds'.format(time.time()-time_start))
@@ -54,15 +68,10 @@ for textline in text.split("\n"): #[:2000]:
     if textline.strip().isspace() or len(textline.strip()) == 0: continue
     count,word = textline.strip().split(" ")
 
-    #if (int(count) >= 100) and wikicount.get(word,0) >= 100:
     if word in model and word in german:
         wortliste.append(word)
         common_words.append((int(count) >= 100) and wikicount.get(word,0) >= 100)
 
-
-    #for similarW,diff in model.most_similar(word,topn=4):
-    #    wortliste.append(similarW)
-    #    #print(similarW)
 print('Wortliste computed. Time elapsed: {} seconds'.format(time.time()-time_start))
 
 
@@ -279,294 +288,7 @@ def handleWord(wI,wJ):
     nearSet = set([wI,wJ])
     return (diffSet,firstSet1,firstSet2,nearSet)
 
-#
-#
-#
-#
-#
-#    diffListI = list()
-#    dissimilarListI = list() 
-#    diffListJ = list()
-#    dissimilarListI = list() 
-#    aI = uvecs[wI]
-#    bI = gvecs[wI]
-#    aJ = uvecs[wJ]
-#    bJ = gvecs[wJ]
-#    for j in range(0,len(wortliste)):
-#        if not common_words[j]: continue
-#        udiff = cosine_similarity(a, uvecs[j])
-#        gdiff = cosine_similarity(b, gvecs[j])
-#        diff = udiff - gdiff
-#        #diffList.append((diff*diff,j,udiff,gdiff))
-#        diffList.append((abs(diff),j,udiff,gdiff))
-#        #print("%s %f %f %f" % (wortliste[j],udiff,gdiff,diff*diff))
-#
-#    diffList.sort(reverse = True)
-#
-#    diffSet = set()
-#    firstSet1 = set()
-#    firstSet2 = set()
-#    nearSet = set()
-#
-#
-#    gSet = german.most_similar(wortliste[i],topn=5000)
-#    uSet = model.most_similar(wortliste[i],topn=5000)
-#    
-#    num = 50
-#    gsim = set()
-#    for (ww,sc) in gSet:
-#        if ww in wortset:
-#            gsim.add(ww)
-#        if len(gsim) == num: break
-#    
-#    usim = set()
-#    for (ww,sc) in uSet:
-#        if ww in wortset:
-#            usim.add(ww)
-#        if len(usim) == num: break
-#
-#    inter = gsim.intersection(usim)
-#
-#    print(gsim)
-#    print(usim)
-#    print(inter)
-#
-#
-#    uInter = [(sc,ww) for (ww,sc) in uSet if ww in inter]
-#    uInter.sort(reverse = True)
-#    gInter = [(sc,ww) for (ww,sc) in gSet if ww in inter]
-#    gInter.sort(reverse = True)
-#
-#
-#    for (sc,w) in uInter:
-#        j = wortliste.index(w)
-#
-#        maxSim = -1
-#        idx = 0
-#        for k in diffSet:
-#            udiff = cosine_similarity(uvecs[j], uvecs[k])
-#            gdiff = cosine_similarity(gvecs[j], gvecs[k])
-#            if udiff > maxSim: maxSim = udiff; idx = k
-#            if gdiff > maxSim: maxSim = gdiff; idx = k
-#
-#        if maxSim < 0.9 and len(nearSet) < 5:
-#            print("Intersection:     %-30s %.7f" % (w,maxSim))
-#            nearSet.add(j)
-#            diffSet.add(j)
-#        #else:
-#        #    print("Reject:           %-30s %.7f" % (w,maxSim))
-#
-#        if len(nearSet) == 5: break
-#
-#    for (sc,w) in gInter:
-#        j = wortliste.index(w)
-#
-#        maxSim = -1
-#        idx = 0
-#        for k in diffSet:
-#            udiff = cosine_similarity(uvecs[j], uvecs[k])
-#            gdiff = cosine_similarity(gvecs[j], gvecs[k])
-#            if udiff > maxSim: maxSim = udiff; idx = k
-#            if gdiff > maxSim: maxSim = gdiff; idx = k
-#
-#        if maxSim < 0.9 and len(nearSet) < 5:
-#            print("Intersection:     %-30s %.7f" % (w,maxSim))
-#            nearSet.add(j)
-#            diffSet.add(j)
-#        #else:
-#        #    print("Reject:           %-30s %.7f" % (w,maxSim))
-#
-#        if len(nearSet) == 5: break
-#
-#    gn = gsim - inter
-#    un = usim - inter
-#
-#    uNInter = [(sc,ww) for (ww,sc) in uSet if ww in un]
-#    uNInter.sort(reverse = True)
-#    gNInter = [(sc,ww) for (ww,sc) in gSet if ww in gn]
-#    gNInter.sort(reverse = True)
-#
-#
-#    ### German near, but not Urteil
-#    for w in gn:
-#        j = wortliste.index(w)
-#        maxSim = -1
-#        idx = 0
-#        for k in diffSet:
-#            udiff = cosine_similarity(uvecs[j], uvecs[k])
-#            gdiff = cosine_similarity(gvecs[j], gvecs[k])
-#            if udiff > maxSim: maxSim = udiff; idx = k
-#            if gdiff > maxSim: maxSim = gdiff; idx = k
-#
-#        if maxSim < 0.9 and len(firstSet1) < 5:
-#            print("Non-Intersection: %-30s %.7f" % (w,maxSim))
-#            firstSet1.add(j)
-#            diffSet.add(j)
-#        #else:
-#        #    print("Reject:           %-30s %.7f" % (w,maxSim))
-#
-#        if len(firstSet1) == 5: break
-#
-#    ### Urteile near, but not German
-#    for w in un:
-#        j = wortliste.index(w)
-#        maxSim = -1
-#        idx = 0
-#        for k in diffSet:
-#            udiff = cosine_similarity(uvecs[j], uvecs[k])
-#            gdiff = cosine_similarity(gvecs[j], gvecs[k])
-#            if udiff > maxSim: maxSim = udiff; idx = k
-#            if gdiff > maxSim: maxSim = gdiff; idx = k
-#
-#        if maxSim < 0.9 and len(firstSet2) < 5:
-#            print("Non-Intersection: %-30s %.7f" % (w,maxSim))
-#            firstSet2.add(j)
-#            diffSet.add(j)
-#        #else:
-#        #    print("Reject:           %-30s %.7f" % (w,maxSim))
-#
-#        if len(firstSet2) == 5: break
-#
-#
-#    toAdd = list(diffSet)
-#    for w in toAdd:
-#        #diffSet.add(w)
-#        #nearSet.add(w)
-#
-#        for ww in getWordDef(w,4,4):
-#            diffSet.add(ww)
-#
-#
-#
-#
-#    #uMinDiff = 1
-#    #gMinDiff = 1
-#    #for (diff,j,udiffM,gdiffM) in diffList:
-#    #    maxSim = -1
-#    #    idx = 0
-#    #    for k in diffSet:
-#    #        if k == i: continue
-#    #        udiff = cosine_similarity(uvecs[j], uvecs[k])
-#    #        gdiff = cosine_similarity(gvecs[j], gvecs[k])
-#    #        if udiff > maxSim: maxSim = udiff; idx = k
-#    #        if gdiff > maxSim: maxSim = gdiff; idx = k
-#
-#    #    b = len(firstSet)
-#    #    if maxSim < 0.9 and len(firstSet) < 11:
-#    #        diffSet.add(j)
-#    #        firstSet.add(j)
-#    #        if udiffM < uMinDiff: uMinDiff = udiffM
-#    #        if gdiffM < gMinDiff: gMinDiff = gdiffM
-#
-#    #        for w in getWordDef(j):
-#    #            diffSet.add(w)
-#
-#
-#    #    print("%-30s %0.7f \t\t U %0.7f G %0.7f \t\t %0.7f %-30s   %3d %d" % (wortliste[j],diff, udiffM, gdiffM, maxSim, wortliste[idx], len(diffSet), len(diffSet) - b))
-#    #    
-#    #    if len(firstSet) == 5:
-#    #        break
-#
-#
-##    dissCount = 0
-##    for (diff,j) in dissimilarList:
-##        if diff < -0.5: continue
-##        maxSim = -1
-##        idx = 0
-##        for k in diffSet:
-##            if k == i: continue
-##            udiff = cosine_similarity(uvecs[j], uvecs[k])
-##            gdiff = cosine_similarity(gvecs[j], gvecs[k])
-##            if udiff > maxSim: maxSim = udiff; idx = k
-##            if gdiff > maxSim: maxSim = gdiff; idx = k
-##
-##        if maxSim < 0.2 and dissCount < 10:
-##            diffSet.add(j)
-##            dissCount += 1
-##            for w in getWordDef(j,2,2):
-##                diffSet.add(w)
-##        
-##        print("%-30s %0.7f \t\t %0.7f %-30s\t%3d" % (wortliste[j],diff, maxSim, wortliste[idx], len(diffSet)))
-##        if dissCount == 10:
-##            break
-##
-##
-#    #for (diff,j) in dissimilarList:
-#    #    maxSim = -1
-#    #    idx = 0
-#    #    for k in diffSet:
-#    #        if k == i: continue
-#    #        udiff = cosine_similarity(uvecs[j], uvecs[k])
-#    #        gdiff = cosine_similarity(gvecs[j], gvecs[k])
-#    #        if udiff > maxSim: maxSim = udiff; idx = k
-#    #        if gdiff > maxSim: maxSim = gdiff; idx = k
-#
-#    #    b = len(firstSet)
-#    #    if maxSim < 0.9 and len(firstSet) < 11:
-#    #        diffSet.add(j)
-#    #        firstSet.add(j)
-#
-#    #        for w in getWordDef(j):
-#    #            diffSet.add(w)
-#    #    
-#    #    print("%-30s %0.7f \t\t U %0.7f G %0.7f \t\t %0.7f %-30s   %3d %d" % (wortliste[j],diff, udiffM, gdiffM, maxSim, wortliste[idx], len(diffSet), len(diffSet) - b))
-#    #    if len(firstSet) == 10:
-#    #        break
-#
-#
-#    diffSet.add(i)
-#    nearSet.add(i)
-#    return (diffSet,firstSet1,firstSet2,nearSet)
 
-
-
-## Gut
-# einreden
-# beibringen
-# ordentlich
-# abstellen
-# anstrengen
-
-
-### Interessant:
-# partei
-# bürgin
-# nachlassen
-#
-#
-#
-
-plotSet = set([
-   # ('vorig', 'vergangen')
-   #,
-   #('vortrag', 'sachvortrag')
-   #,
-   ('angreifen', 'attackieren')
-   #,('dahinstellen', 'unterscheiden')
-   #,('offen', 'unentschieden')
-   #,('kommend', 'ziehend')
-   #,('vortrag', 'behaupten')
-   #,('mark', 'zeichen')
-   #,('wirklich', 'mutmasslich')
-   #,('grundsätzlich', 'bezüglich')
-   #,('bürgen', 'bürgin')
-   #,('vorlegen', 'beibringen')
-   #,('betragen', 'betrügen')
-   #,('beschwerdegegnerin', 'sachmangel')
-   #,('vertreten', 'repräsentieren')
-   #,('fachmann', 'druckschrift')
-   #,('wiedergabe', 'referieren')
-   #,('aktivieren', 'bilanzieren')
-   #,('schluß', 'rückschluss')
-   #,('bürgschaft', 'bürgin')
-   #,('übersenden', 'überreichen')
-   #,('ebenfalls', 'gleichfalls')
-   #,('kanzler', 'merkel')
-   #,('berührend', 'bewegend')
-   #,('zwanglos', 'ungezwungen')
-   #,('berühmen', 'weltbekannt')   # <--
-   #,('eigenartig', 'merkwürdig')
-    ])
 
 time_start = time.time()
 i = 0
@@ -585,11 +307,11 @@ for (word1,word2) in plotSet:
     plotHighlight1 = set([wortliste[i] for i in plotNear])
     
     tsne_data = tsne(plotList, 'urteile')
-    plotDataset(tsne_data,mainI,mainJ,plotHighlight1,plotHighlight2,plotHighlight3,'tsne1','tsne2','plots-pair/plot-'+word1+'-'+word2+'-urteile-tsne.png')
-    plotDataset(tsne_data,mainI,mainJ,plotHighlight1,plotHighlight2,plotHighlight3,'dim0','dim1','plots-pair/plot-'+word1+'-'+word2+'-urteile-pca.png')
+    plotDataset(tsne_data,mainI,mainJ,plotHighlight1,plotHighlight2,plotHighlight3,'tsne1','tsne2','plot-'+word1+'-'+word2+'-urteile-tsne.png')
+    plotDataset(tsne_data,mainI,mainJ,plotHighlight1,plotHighlight2,plotHighlight3,'dim0','dim1','plot-'+word1+'-'+word2+'-urteile-pca.png')
     tsne_data = tsne(plotList, 'german')
-    plotDataset(tsne_data,mainI,mainJ,plotHighlight1,plotHighlight2,plotHighlight3,'tsne1','tsne2','plots-pair/plot-'+word1+'-'+word2+'-german-tsne.png')
-    plotDataset(tsne_data,mainI,mainJ,plotHighlight1,plotHighlight2,plotHighlight3,'dim0','dim1','plots-pair/plot-'+word1+'-'+word2+'-german-pca.png')
+    plotDataset(tsne_data,mainI,mainJ,plotHighlight1,plotHighlight2,plotHighlight3,'tsne1','tsne2','plot-'+word1+'-'+word2+'-german-tsne.png')
+    plotDataset(tsne_data,mainI,mainJ,plotHighlight1,plotHighlight2,plotHighlight3,'dim0','dim1','plot-'+word1+'-'+word2+'-german-pca.png')
 
 
     curTime = time.time()-time_start
