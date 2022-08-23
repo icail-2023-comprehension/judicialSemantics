@@ -1,4 +1,14 @@
-## Welcome to GitHub Pages
+## Welcome to Judicial Semantics!
+
+This website contains a practical tool for understanding and comparing the semantics of standard and technical legal language for the German legal system.
+
+
+### Word2Vec Models
+
+We have trained two word2vec Models -- one for standard and one for legal german language.
+
+- standard german: [download model]()
+- legal german: [download model]()
 
 You can use the [editor on GitHub](https://github.com/ictai1672/judicialSemantics/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
 
