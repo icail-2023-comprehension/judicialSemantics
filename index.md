@@ -43,4 +43,4 @@ The generated files are again pngs and contain both words in their file names.
 
 ### Single Words
 
-<img src="https://github.com/ictai1672/judicialSemantics/blob/main/plots/plot-ablehnen-german-pca.png?raw=true" width="100" height="100">
+<img src="https://github.com/ictai1672/judicialSemantics/blob/main/plots/plot-ablehnen-german-pca.png?raw=true" width="600">
