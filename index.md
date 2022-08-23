@@ -7,41 +7,18 @@ This website contains a practical tool for understanding and comparing the seman
 
 We have trained two word2vec Models -- one for standard and one for legal german language.
 
-- standard german: [download model]()
-- legal german: [download model]()
+- standard german: [download model](https://github.com/ictai1672/judicialSemantics/blob/main/deutsch.vector) [download numpy file](https://github.com/ictai1672/judicialSemantics/blob/main/deutsch.vector.vectors.npy)
+- legal german: [download model](https://github.com/ictai1672/judicialSemantics/blob/main/urteile.vector) [download numpy file](https://github.com/ictai1672/judicialSemantics/blob/main/urteile.vector.vectors.npy)
 
-You can use the [editor on GitHub](https://github.com/ictai1672/judicialSemantics/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+Note that you need **both** the model and the numpy files to load the model.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+### Semantics of a Single Word
 
-### Markdown
+For understanding the differnce in semantics of a single word, we generate two plots: one depicting the semantics of the word in standard german an one in legal german.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+You can download the script for generating these plots [here]().
 
-```markdown
-Syntax highlighted code block
+To run the script, you need to download both the standard and legal word2vec model as well as the two folloing files: [file1](https://github.com/ictai1672/judicialSemantics/blob/main/urteile.counter) and [file2](https://github.com/ictai1672/judicialSemantics/blob/main/deutsch.counter) (containing the word count for each word in both corpora).
+All these files must be in the same folder as the ``single-word.py``
 
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/ictai1672/judicialSemantics/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+To generate a plot for a word, simply call ``python single-word.py word``
